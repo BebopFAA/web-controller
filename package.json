@@ -1,0 +1,31 @@
+{
+  "name": "web-controller",
+  "version": "1.0.0",
+  "description": "Control your Bebop Drone while monitoring FAA regulations and weather conditions in real-time.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BebopFAA/web-controller.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BebopFAA/web-controller/issues"
+  },
+  "homepage": "https://github.com/BebopFAA/web-controller#readme",
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "compression": "^1.6.0",
+    "errorhandler": "^1.4.2",
+    "express": "^4.13.3",
+    "gulp": "^3.9.0",
+    "gulp-sass": "^2.1.0",
+    "jade": "^1.11.0",
+    "morgan": "^1.6.1",
+    "path": "^0.12.7",
+    "serve-favicon": "^2.3.0"
+  }
+}
