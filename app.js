@@ -71,7 +71,6 @@ var LINEAR_Z_VEL = 75;
 var ANGULAR_VEL = 100;
 
 Cylon.robot({
-<<<<<<< HEAD
 	connections: {
 		keyboard: { adaptor: 'keyboard' },
 		// joystick: { adaptor: "joystick" },
