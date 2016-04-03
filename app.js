@@ -91,7 +91,8 @@ Cylon.robot({
 		console.log('\t Linear velocity (z):\t' + LINEAR_Z_VEL);
 		console.log('\t Angular velocity:\t' + ANGULAR_VEL);
 
-		// console.log(my.drone.GPSSettings);
+		my.drone.connection.connector.GPSSettings.resetHome();
+		my.drone.connection.connector.WifiSettings.outdoorSetting(1);
 
 		my.drone.on('PositionChanged', function(data) {
 			console.log(data);
