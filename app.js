@@ -9,21 +9,11 @@ var express = require('express'),
 	bodyParser = require('body-parser'),
 	logger = require('morgan'),
 	errorHandler = require('errorhandler'),
-	path = require('path');
-	Cylon = require('cylon');
-	fs = require('fs');
-	io = require('socket.io')(80);
-
-var toUint8Array = function (parStr) {
-  var raw = atob(parStr);
-  var array = new Uint8Array(new ArrayBuffer(raw.length));
-
-  Array.prototype.forEach.call(raw, function (data, index) {
-    array[index] = raw.charCodeAt(index);
-  })
-
-  return array;
-};
+	path = require('path'),
+	Cylon = require('cylon'),
+	fs = require('fs'),
+	io = require('socket.io')(8000),
+	atob = require('atob');
 
 /**
  * Controllers (route handlers).
@@ -66,6 +56,18 @@ app.listen(app.get('port'), function() {
 });
 
 
+var toUint8Array = function (parStr) {
+  var raw = atob(parStr);
+  var array = new Uint8Array(new ArrayBuffer(raw.length));
+
+  Array.prototype.forEach.call(raw, function (data, index) {
+    array[index] = raw.charCodeAt(index);
+  })
+
+  return array;
+};
+
+
 var LINEAR_XY_VEL = 100;
 var LINEAR_Z_VEL = 75;
 var ANGULAR_VEL = 100;
@@ -99,30 +101,13 @@ Cylon.robot({
 			console.log(data);
 		});
 
-		// my.drone.on('video', function(data) {
-		// 	console.log(data);
-		// });
-
-		// var output = fs.createWriteStream("./video.mpeg"),
-		var stream = my.drone.getVideoStream();
-
 		io.on('connection', function (socket) {
-			stream.on('data', function (data) {
-				socket.emit('data', {
-					base64: toUint8Array(data.toString('base64'))
-				});
+			console.log('Socket IO connection established!');
+			my.drone.on('video', function (data) {
+				console.log('Transmitting video data...')
+				socket.emit('data', data.toString('base64'));
 			});
 		});
-		
-		// video.pipe(output);
-
-	//	 var video = my.drone.getVideoStream();
-
-	//	 server.on('connection', function(client) {
-	//		 console.log('PIPING THE VIDEO');
-	//		 var stream = client.createStream();
-	//	video.pipe(stream);
-	// });
 
 		// var that = this,
 	 //				rightStick = { x: 0.0, y: 0.0 },

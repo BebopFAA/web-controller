@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/BebopFAA/web-controller#readme",
   "dependencies": {
+    "atob": "^2.0.0",
     "body-parser": "^1.14.1",
     "compression": "^1.6.0",
     "cylon": "^1.2.0",
@@ -33,6 +34,7 @@
     "path": "^0.12.7",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.4.5",
+    "socket.io-client": "^1.4.5",
     "titlecase": "^1.1.2"
   },
   "devDependencies": {
