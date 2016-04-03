@@ -32,7 +32,8 @@
     "morgan": "^1.6.1",
     "path": "^0.12.7",
     "serve-favicon": "^2.3.0",
-    "socket.io": "^1.4.5"
+    "socket.io": "^1.4.5",
+    "titlecase": "^1.1.2"
   },
   "devDependencies": {
     "gulp-browserify": "^0.5.1",
