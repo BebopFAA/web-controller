@@ -22,7 +22,9 @@ $(function () {
     workerFile: '/js/Decoder.js'
   });
 
-  document.body.appendChild(player.canvas);
+  var videoWindow = document.getElementById('video-stream');
+  // document.body.appendChild(player.canvas);
+  videoWindow.appendChild(player.canvas);
 
   var socket = io('http://localhost:8000/');
   

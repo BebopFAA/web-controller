@@ -104,7 +104,7 @@ Cylon.robot({
 		io.on('connection', function (socket) {
 			console.log('Socket IO connection established!');
 			my.drone.on('video', function (data) {
-				console.log('Transmitting video data...')
+				// console.log('Transmitting video data...')
 				socket.emit('data', data.toString('base64'));
 			});
 		});
