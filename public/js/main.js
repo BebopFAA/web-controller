@@ -1,6 +1,4 @@
-var Cylon = require('cylon');
-var fs = require('fs');
-var binjs = require('binaryjs');
+
 
 $(function () {
   'use strict';
@@ -93,4 +91,17 @@ $(function () {
       getRegulationsForPoint(location.coordinates);
     }, 1500);
   });
+
+
+  var toUint8Array = function (parStr) {
+    var raw = atob(parStr);
+    var array = new Uint8Array(new ArrayBuffer(raw.length));
+
+    Array.prototype.forEach.call(raw, function (data, index) {
+      array[index] = raw.charCodeAt(index);
+    })
+
+    return array;
+  };
+
 });

@@ -17,10 +17,12 @@
   },
   "homepage": "https://github.com/BebopFAA/web-controller#readme",
   "dependencies": {
-    "binaryjs": "^0.2.1",
     "body-parser": "^1.14.1",
     "compression": "^1.6.0",
     "cylon": "^1.2.0",
+    "cylon-bebop": "^0.4.0",
+    "cylon-joystick": "^0.19.1",
+    "cylon-keyboard": "^0.16.0",
     "errorhandler": "^1.4.2",
     "express": "^4.13.3",
     "fs": "0.0.2",
@@ -29,7 +31,8 @@
     "jade": "^1.11.0",
     "morgan": "^1.6.1",
     "path": "^0.12.7",
-    "serve-favicon": "^2.3.0"
+    "serve-favicon": "^2.3.0",
+    "socket.io": "^1.4.5"
   },
   "devDependencies": {
     "gulp-browserify": "^0.5.1",
