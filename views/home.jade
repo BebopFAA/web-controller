@@ -2,8 +2,24 @@
 extends layout
 
 block styles
-
+	link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css', rel='stylesheet', type='text/css')
+	//- link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.css' rel='stylesheet')
 block scripts
-
+	script(src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js')
+	//- script(src="http://cdn.airmap.io/map-sdk/1.0.0/dist/airmap.map.js")
+	
 block content
-	p Starter Code
+	.row
+		.col-md-6
+			#left
+				h3 Live Stream
+				#video-stream
+					#loading
+		.col-md-6
+			#right
+				h3 Drone Location
+				#map
+	
+	script.
+		var MAPBOX_TOKEN = !{JSON.stringify(MAPBOX_TOKEN)};
+		var AIRMAP_TOKEN = !{JSON.stringify(AIRMAP_TOKEN)};
