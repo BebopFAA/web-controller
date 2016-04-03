@@ -34,7 +34,8 @@ $(function () {
   });
 
   var toTitleCase = require('titlecase');
-  console.log(toTitleCase);
+  var moment = require('moment');
+  var _ = require('lodash');
   var MAX_ZOOM = 14.9;
   var ZOOM = MAX_ZOOM;
   var THEME = 'standard';
@@ -57,6 +58,29 @@ $(function () {
     power_plants: { icon: 'fa fa-bolt' },
     heliports: { icon: 'fa fa-h-square' },
     schools: { icon: 'fa fa-graduation-cap' },
+  };
+
+  var layerNames = {
+    airports_commercial: 'Airports (Commercial Rules)',
+    airports_commercial_private: 'Private Airports (Commercial Rules)',
+    airports_recreational: 'Airports (Recreational Rules)',
+    airports_recreational_private: 'Private Airports (Recreational Rules)',
+    class_b: 'Controlled Airspace (Class B)',
+    class_c: 'Controlled Airspace (Class C)',
+    class_d: 'Controlled Airspace (Class D)',
+    class_e0: 'Controlled Airspace (Class E to Ground)',
+    heliports: 'Heliports',
+    hospitals: 'Hospitals',
+    national_parks: 'National Parks',
+    noaa: 'NOAA Marine Protection Areas',
+    parcels: 'Private Property',
+    power_plants: 'Power Plants',
+    prisons: 'Prisons',
+    schools: 'Schools',
+    stadiums: 'Stadiums',
+    sua_prohibited: 'Prohibited Special Use Airspace',
+    sua_restricted: 'Restricted Special Use Airspace',
+    tfrs: 'Temporary Flight Restrictions',
   };
 
   var advisoryLevels = {
@@ -92,6 +116,88 @@ $(function () {
   var icons = {
     school: 'graduation-cap',
   };
+
+  function buildPopupMarkup(layers) {
+    var html = '';
+    var grouped = _.groupBy(layers, function (p) {
+      return p.type;
+    });
+
+    var keys = _.keys(grouped);
+    for (var g in keys) {
+      var group = keys[g];
+      var groupHtml = "<div class='airspace-group-title'><b>" +
+        layerNames[group] + '</b></div>';
+      for (var i in grouped[group]) {
+        var item = grouped[group][i];
+        if (item.url) {
+          groupHtml += "<div class='airspace-item'><div class='airspace-item-name'><a href='" +
+          item.url + "'>" + item.name + '</a></div>';
+        } else {
+          groupHtml += "<div class='airspace-item'><div class='airspace-item-name'>" +
+          item.name + '</div>';
+        }
+
+        if (item.phone) {
+          groupHtml += "<div class='airspace-item-phone'><a href='tel://" +
+          item.phone + "'>" + item.phone + '</a></div>';
+        }
+
+        if (item.date_issued) {
+          var start = moment(item.date_issued);
+          var end = moment(item.date_expire);
+          var now = moment();
+          if (now.isBefore(start)) {
+            groupHtml += "<div class='airspace-item-start'>Starts " + start.fromNow() + '</div>';
+          } else {
+            groupHtml += "<div class='airspace-item-start'>Started " + start.fromNow() + '</div>';
+          }
+
+          if (item.date_expire != '+010000-01-01T00:00:00.000Z') {
+            groupHtml += "<div class='airspace-item-end'>Ends " +
+              end.format('MMMM Do YYYY, h:mm:ss a') + '</div>';
+          }
+        }
+
+        groupHtml += '<br/></div>';
+      }
+
+      html += groupHtml;
+    }
+
+    return html;
+  }
+
+  // Code modified from the AirMap SDK
+  function sdkHandleClick(data) {
+    var map = data.target;
+    var features = map.queryRenderedFeatures(data.point);
+    var properties = _.map(features, function (feature) {
+      return feature.properties;
+    });
+
+    properties = _.filter(properties, function (p) {
+      return p.type &&
+        (_.includes(Object.keys(layerNames), p.type.replace('layer_', '')) || p.type == 'tfrs');
+    });
+
+    if (properties.length > 0) {
+      var markup = buildPopupMarkup(properties);
+      var popups = document.getElementsByClassName('mapboxgl-popup-content');
+      if (popups.length > 0) {
+        var markupElement = document.createElement('div');
+        markupElement.innerHTML = markup;
+        popups[0].insertBefore(markupElement, popups[0].firstChild);
+      } else {
+        var tooltip = new mapboxgl.Popup({
+          closeOnClick: true,
+        }).setLngLat(data.lngLat).setHTML(markup);
+        tooltip.addTo(map);
+      }
+    }
+  }
+
+  map.on('click', sdkHandleClick);
 
   function clearRegulations() {
     $('#regulations').empty();
