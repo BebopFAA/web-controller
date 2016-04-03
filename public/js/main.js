@@ -43,21 +43,68 @@ $(function () {
   var layers = {
 
     // Airport Airspaces
-    airports_recreational: { icon: 'fa fa-plane' },
+    airports_recreational: {
+      icon: 'fa fa-plane',
+      tooltip: 'Airports (Recreational Rules)\n\nDrone operators must ' +
+        'notify air traffic control when flying within 5NM.',
+    },
 
     // Cautions
-    tfrs: { icon: 'fa fa-exclamation-triangle' },
-    sua_prohibited: { icon: 'fa fa-user-secret' },
-    sua_restricted: { icon: 'fa fa-fighter-jet' },
-    noaa: { icon: 'fa fa-ship' },
-    national_parks: { icon: 'fa fa-tree' },
+    tfrs: {
+      icon: 'fa fa-exclamation-triangle',
+      tooltip: 'Temporary Flight Restrictions\n\nThe FAA releases TFRs to ' +
+        'restrict aircraft traffic in ' +
+        'certain areas for special events, such as rocket launches or air shows.',
+    },
+    sua_prohibited: {
+      icon: 'fa fa-user-secret',
+      tooltip: 'Prohibited Special Use Airspace\n\nRestricted airspaces for ' +
+        'highly sensitive governmental areas, ' +
+        'such as the White House or Camp David. Permission is required, but rarely granted.',
+    },
+    sua_restricted: {
+      icon: 'fa fa-fighter-jet',
+      tooltip: 'Restricted Special Use Airspace\n\nRestricted airspaces for military activities. ' +
+        'Permission is required, but rarely granted.',
+    },
+    noaa: {
+      icon: 'fa fa-ship',
+      tooltip: 'NOAA Marine Protection Areas\n\nNOAA prohibits operating ' +
+        'unmanned aircraft inside of marine protection areas.',
+    },
+    national_parks: {
+      icon: 'fa fa-tree',
+      tooltip: 'National Parks\n\nOperating unmanned aircraft inside of lands and ' +
+        'water administered by the National Park Service is prohibited.',
+    },
 
     // Advisories
-    hospitals: { icon: 'fa fa-ambulance' },
-    parcels: { icon: 'fa fa-home' },
-    power_plants: { icon: 'fa fa-bolt' },
-    heliports: { icon: 'fa fa-h-square' },
-    schools: { icon: 'fa fa-graduation-cap' },
+    hospitals: {
+      icon: 'fa fa-ambulance',
+      tooltip: 'Hospitals\n\nSome jurisdictions enforce a 250ft no-fly zone around ' +
+        'medical facilities to protect safety and privacy.',
+    },
+    parcels: {
+      icon: 'fa fa-home',
+      tooltip: 'Private Property\n\nPrivate residences, ' +
+        'whose owners have requested that operators' +
+        'avoid the airspace above them via NoFlyZone.org.',
+    },
+    power_plants: {
+      icon: 'fa fa-bolt',
+      tooltip: 'Power Plants\n\nSome jurisdictions prohibit flight in the vicinity of ' +
+        'critical infastruture, including power plants.',
+    },
+    heliports: {
+      icon: 'fa fa-h-square',
+      tooltip: 'Heliports\n\nIncreased helicopter traffic due to proximity of heliports. ' +
+        'A 500ft radius is institued to warn unmanned aircraft operators.',
+    },
+    schools: {
+      icon: 'fa fa-graduation-cap',
+      tooltip: 'Schools\n\nSome local jurisdictions have designated educational ' +
+      'facilities as sensitive areas.',
+    },
   };
 
   var layerNames = {
@@ -92,7 +139,7 @@ $(function () {
   var labelColors = {
     SAFE: 'success',
     CAUTION: 'warning',
-    ADVISORY: 'danger',
+    PROHIBITED: 'danger',
     'N/A': 'info',
   };
 
@@ -115,10 +162,6 @@ $(function () {
 
   map.addControl(new mapboxgl.Geolocate());
   map.addControl(new mapboxgl.Navigation());
-
-  var icons = {
-    school: 'graduation-cap',
-  };
 
   function buildPopupMarkup(layers) {
     var html = '';
@@ -206,20 +249,41 @@ $(function () {
     $('#regulations').empty();
   }
 
+  function getRegulationLabelTooltip(label) {
+    if (label == 'SAFE') {
+      return 'NO VIOLATION\nLEGAL';
+    } else if (label == 'CAUTION') {
+      return 'VIOLATION\nNOT PROHIBITED';
+    } else {
+      return 'VIOLATION\nPROHIBITED';
+    }
+  }
+
+  function getNonRegulationLabelTooltip(label) {
+    if (label == 'SAFE') {
+      return 'SAFE FLYING CONDITIONS';
+    } else if (label == 'CAUTION') {
+      return 'POSSIBLY DANGEROUS FLYING CONDITIONS';
+    } else {
+      return 'DANGEROUS FLYING CONDITIONS';
+    }
+  }
+
   function addRegulation(name, type, color) {
     // console.log(type);
     // console.log(layers[type]);
     var label = 'SAFE';
     if (color == 'red') {
-      label = 'ADVISORY';
+      label = 'PROHIBITED';
     } else if (color == 'yellow') {
       label = 'CAUTION';
     }
 
     var html = '<li class="list-group-item ' + color +
       '-regulation"><i class="' + layers[type].icon +
-      '" data-toggle="tooltip" title="' + layerNames[type] + '"></i> ' +
+      '" data-toggle="tooltip" title="' + layers[type].tooltip + '"></i> ' +
       toTitleCase(name.toLowerCase()) + '<span class="label label-' + labelColors[label] +
+      '" data-toggle="tooltip" title="' + getRegulationLabelTooltip(label) +
       '">' + label + '</span></li>';
     $('#regulations').append(html);
   }
@@ -239,6 +303,7 @@ $(function () {
     });
 
     sortedRegulations.forEach(function (regulation) {
+      console.log(regulation);
       var color = regulation.advisory_level;
       var type = regulation.type;
       var name = regulation.name;
@@ -254,6 +319,7 @@ $(function () {
     var html = '<li class="list-group-item"><i class="' + icon +
       '" data-toggle="tooltip" title="' + tooltip + '"></i> ' +
       weather + '<span class="label label-' + labelColors[label] +
+      '" data-toggle="tooltip" title="' + getNonRegulationLabelTooltip(label) +
       '">' + label + '</span></li>';
     $('#weather').append(html);
   }
@@ -287,27 +353,27 @@ $(function () {
     addWeather(condition, conditionIcon, conditionLabel, 'Weather Condition');
 
     var visibility = weather.visibility * 0.621371;
-    var visLabel = (visibility < 2 ? 'ADVISORY' :
+    var visLabel = (visibility < 2 ? 'PROHIBITED' :
       (visibility < 5) ? 'CAUTION' : 'SAFE');
     addWeather((visibility.toFixed(2)) + ' mi', 'fa fa-eye', visLabel, 'Visibility');
 
     var precipitation = weather.precipitation * 100;
-    var precLabel = (precipitation > 50 ? 'ADVISORY' :
+    var precLabel = (precipitation > 50 ? 'PROHIBITED' :
       (precipitation > 20) ? 'CAUTION' : 'SAFE');
     addWeather((precipitation) + ' %', 'wi wi-raindrop', precLabel, 'Chance of Precipitation');
 
     var temperature = (weather.temperature * 9 / 5 + 32);
-    var tempLabel = (temperature < 10 || temperature > 100 ? 'ADVISORY' :
+    var tempLabel = (temperature < 10 || temperature > 100 ? 'PROHIBITED' :
       (temperature < 20 || temperature > 90) ? 'CAUTION' : 'SAFE');
     addWeather((temperature) + ' °F', 'wi wi-thermometer-exterior', tempLabel, 'Temperature');
 
     var windspeed = weather.wind.speed * 0.621371;
-    var speedLabel = (windspeed > 15 ? 'ADVISORY' :
+    var speedLabel = (windspeed > 15 ? 'PROHIBITED' :
       (windspeed > 10) ? 'CAUTION' : 'SAFE');
     addWeather((windspeed.toFixed(2)) + ' mph', 'wi wi-windy', speedLabel, 'Wind Speed');
 
     var gusts = weather.wind.gusting * 0.621371;
-    var gustsLabel = (gusts > 25 ? 'ADVISORY' :
+    var gustsLabel = (gusts > 25 ? 'PROHIBITED' :
       (gusts > 15) ? 'CAUTION' : 'SAFE');
     addWeather((gusts.toFixed(2)) + ' mph', 'wi wi-strong-wind', gustsLabel, 'Wind Gust Speed');
   }
@@ -319,7 +385,7 @@ $(function () {
   function updateAltitudeRegulation() {
     var currentAltitude = getDroneAltitude();
 
-    // var label = (currentAltitude >= 400 ? 'ADVISORY' :
+    // var label = (currentAltitude >= 400 ? 'PROHIBITED' :
     // (currentAltitude >= 250 ? 'CAUTION' : 'SAFE'));
     var label = 'N/A';
 
@@ -413,6 +479,10 @@ $(function () {
 
         // updateAltitudeRegulation();
         $('i').tooltip({
+          animation: false,
+          placement: 'left',
+        });
+        $('.label').tooltip({
           animation: false,
           placement: 'left',
         });
