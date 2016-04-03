@@ -207,12 +207,13 @@ $(function () {
 
   function updateAltitudeRegulation() {
     var currentAltitude = getDroneAltitude();
-    var label = 'SAFE';
+    var label = (currentAltitude >= 400 ? 'ADVISORY' :
+      (currentAltitude >= 250 ? 'CAUTION' : 'SAFE'));
 
-    // if (currentAltitude)
-    var html = '<li class="list-group-item"><i class="' + icon + '"></i> ' +
-      weather + '<span class="label label-' + labelColors[label] +
+    var html = '<li class="list-group-item"><i class="fa fa-arrows-v"></i> ' +
+      currentAltitude.toFixed(2) + ' ft<span class="label label-' + labelColors[label] +
       '">' + label + '</span></li>';
+    $('#altregulation').empty();
     $('#altregulation').append(html);
   }
 
@@ -296,6 +297,7 @@ $(function () {
       getRegulationsForPoint(location.coordinates, function (response) {
         updateRegulations(response.nearest_advisories);
         updateWeather(response.weather);
+        updateAltitudeRegulation();
       });
     }, 1500);
   });
