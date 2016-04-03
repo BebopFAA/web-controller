@@ -110,6 +110,13 @@ Cylon.robot({
 			my.drone.on('PositionChanged', function(data) {
 				console.log(data);
 				socket.emit('position', data);
+
+				// 400 feet is the regulation value
+				while (data.altitude >= 400) {
+					my.drone.down(LINEAR_Z_VEL);
+				}
+
+				my.drone.stop();
 			});
 
 			my.drone.on('battery', function(data) {
