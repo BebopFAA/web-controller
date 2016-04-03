@@ -27,6 +27,12 @@ $(function () {
     schools: { icon: 'graduation-cap' },
   };
 
+  var advisoryLevels = {
+    red: 3,
+    yellow: 2,
+    green: 1,
+  };
+
   var url = 'https://api.airmap.io/maps/v3/tilejson/' +
     Object.keys(layers).join() + '?apikey=' + AIRMAP_TOKEN +
     '&token=' + AIRMAP_TOKEN +
@@ -56,11 +62,14 @@ $(function () {
   function addRegulation(name, type, color) {
     // console.log(type);
     // console.log(layers[type]);
-    var label = 'CAUTION';
-    var labelColor = 'warning';
+    var label = 'SAFE';
+    var labelColor = 'success';
     if (color == 'red') {
       label = 'ADVISORY';
       labelColor = 'danger';
+    } else if (color == 'yellow') {
+      label = 'CAUTION';
+      labelColor = 'warning';
     }
 
     var html = '<li class="list-group-item ' + color +
@@ -74,8 +83,17 @@ $(function () {
     clearRegulations();
 
     // Sort the regulations first
+    var sortedRegulations = regulations.sort(function (a, b) {
+      if (a.advisory_level != b.advisory_level) {
+        return (advisoryLevels[a.advisory_level] >
+          advisoryLevels[b.advisory_level] ? -1 : 1);
+      } else {
+        if (a.name == b.name) return 0;
+        return (a.name < b.name ? -1 : 1);
+      }
+    });
 
-    regulations.forEach(function (regulation) {
+    sortedRegulations.forEach(function (regulation) {
       var color = regulation.advisory_level;
       var type = regulation.type;
       var name = regulation.name;
@@ -93,7 +111,7 @@ $(function () {
     var latitude = point[1];
     var url = 'https://api.airmap.io/data/v1/status?unique_id=drone_regulations' +
       '&latitude=' + latitude + '&longitude=' + longitude + '&weather=true' +
-      '&apikey=' + AIRMAP_TOKEN;
+      '&apikey=' + AIRMAP_TOKEN + '&types=' + Object.keys(layers).join();
     $.ajax({
       method: 'GET',
       url: url,
