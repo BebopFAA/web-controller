@@ -89,8 +89,8 @@ Cylon.robot({
 		console.log('\t Linear velocity (z):\t' + LINEAR_Z_VEL);
 		console.log('\t Angular velocity:\t' + ANGULAR_VEL);
 
-		my.drone.connection.connector.GPSSettings.resetHome();
-		my.drone.connection.connector.WifiSettings.outdoorSetting(1);
+		console.log(my.drone.connection.connector.GPSSettings.resetHome());
+		console.log(my.drone.connection.connector.WifiSettings.outdoorSetting(1));
 
 		my.drone.on('PositionChanged', function(data) {
 			console.log(data);
@@ -100,45 +100,14 @@ Cylon.robot({
 			console.log(data);
 		});
 
-		io.on('connection', function (socket) {
-			console.log('Socket IO connection established!');
+	    io.on('connection', function (socket) {
+	      console.log('Socket IO connection established!');
 
-  connections: {
-    keyboard: { adaptor: 'keyboard' },
-    // joystick: { adaptor: "joystick" },
-    bebop: { adaptor: 'bebop' },
-  },
-
-  devices: {
-    keyboard: { driver: 'keyboard', connection: 'keyboard' },
-    // controller: { driver: "dualshock-4", connection: "joystick" },
-    drone: { driver: 'bebop', connection: 'bebop' },
-  },
-
-  work: function (my) {
-    console.log('Initializing setup with the following parameters');
-    console.log('\t Linear velocity (xy):\t' + LINEAR_XY_VEL);
-    console.log('\t Linear velocity (z):\t' + LINEAR_Z_VEL);
-    console.log('\t Angular velocity:\t' + ANGULAR_VEL);
-
-    // console.log(my.drone.GPSSettings);
-
-    my.drone.on('PositionChanged', function (data) {
-      console.log(data);
-    });
-
-    my.drone.on('battery', function (data) {
-      console.log(data);
-    });
-
-    io.on('connection', function (socket) {
-      console.log('Socket IO connection established!');
-
-      my.drone.on('video', function (data) {
-        // console.log('Transmitting video data...')
-        socket.emit('data', data.toString('base64'));
-      });
-    });
+	      my.drone.on('video', function (data) {
+	        // console.log('Transmitting video data...')
+	        socket.emit('data', data.toString('base64'));
+	      });
+	    });
 
     // var that = this,
     //				rightStick = { x: 0.0, y: 0.0 },
