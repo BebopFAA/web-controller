@@ -3,6 +3,7 @@ extends layout
 
 block styles
 	link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css', rel='stylesheet', type='text/css')
+	link(href='css/weather-icons.min.css', rel='stylesheet', type='text/css')
 	//- link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.css' rel='stylesheet')
 block scripts
 	script(src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js')
@@ -19,10 +20,13 @@ block content
 			#right
 				h3 Drone Location
 				#map
-				#regulations
+				#warnings
 					.panel.panel-default
 						.panel-heading Regulations
-						ul.list-group
+						ul.list-group#regulations
+							li.list-group-item Loading...
+						.panel-heading Weather
+						ul.list-group#weather
 							li.list-group-item Loading...
 					
 	
