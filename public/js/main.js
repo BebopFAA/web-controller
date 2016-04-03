@@ -1,5 +1,37 @@
+var Player = require('../../Broadway-master/Player/Player');
+var io = require('socket.io-client');
+
+
 $(function () {
   'use strict';
+
+  var toUint8Array = function (parStr) {
+    var raw = atob(parStr);
+    var array = new Uint8Array(new ArrayBuffer(raw.length));
+
+    Array.prototype.forEach.call(raw, function (data, index) {
+      array[index] = raw.charCodeAt(index);
+    })
+
+    // console.log(array);
+    return array;
+  };
+
+  var player = new Player({
+    useWorker: true,
+    workerFile: '/js/Decoder.js'
+  });
+
+  var videoWindow = document.getElementById('video-stream');
+  // document.body.appendChild(player.canvas);
+  videoWindow.appendChild(player.canvas);
+
+  var socket = io('http://localhost:8000/');
+  
+  socket.on('data', function (data) {
+    console.log('receiving video data...')
+    player.decode(toUint8Array(data));
+  });
 
   var toTitleCase = require('titlecase');
   console.log(toTitleCase);
@@ -249,4 +281,7 @@ $(function () {
       });
     }, 1500);
   });
+
+
+
 });
