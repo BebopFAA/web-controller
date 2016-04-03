@@ -1,3 +1,7 @@
+var Cylon = require('cylon');
+var fs = require('fs');
+var binjs = require('binaryjs');
+
 $(function () {
   'use strict';
 

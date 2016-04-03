@@ -17,10 +17,13 @@
   },
   "homepage": "https://github.com/BebopFAA/web-controller#readme",
   "dependencies": {
+    "binaryjs": "^0.2.1",
     "body-parser": "^1.14.1",
     "compression": "^1.6.0",
+    "cylon": "^1.2.0",
     "errorhandler": "^1.4.2",
     "express": "^4.13.3",
+    "fs": "0.0.2",
     "gulp": "^3.9.0",
     "gulp-sass": "^2.1.0",
     "jade": "^1.11.0",
