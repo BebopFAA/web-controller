@@ -214,7 +214,8 @@ $(function () {
     }
 
     var html = '<li class="list-group-item ' + color +
-      '-regulation"><i class="' + layers[type].icon + '"></i> ' +
+      '-regulation"><i class="' + layers[type].icon +
+      '" data-toggle="tooltip" title="' + layerNames[type] + '"></i> ' +
       toTitleCase(name.toLowerCase()) + '<span class="label label-' + labelColors[label] +
       '">' + label + '</span></li>';
     $('#regulations').append(html);
@@ -246,8 +247,9 @@ $(function () {
     $('#weather').empty();
   }
 
-  function addWeather(weather, icon, label) {
-    var html = '<li class="list-group-item"><i class="' + icon + '"></i> ' +
+  function addWeather(weather, icon, label, tooltip) {
+    var html = '<li class="list-group-item"><i class="' + icon +
+      '" data-toggle="tooltip" title="' + tooltip + '"></i> ' +
       weather + '<span class="label label-' + labelColors[label] +
       '">' + label + '</span></li>';
     $('#weather').append(html);
@@ -279,32 +281,32 @@ $(function () {
       conditionLower.indexOf('rain') > -1 ||
       conditionLower.indexOf('snow') > -1 ||
       conditionLower.indexOf('showers') > -1) conditionLabel = 'CAUTION';
-    addWeather(condition, conditionIcon, conditionLabel);
+    addWeather(condition, conditionIcon, conditionLabel, 'Weather Condition');
 
     var visibility = weather.visibility * 0.621371;
     var visLabel = (visibility < 2 ? 'ADVISORY' :
       (visibility < 5) ? 'CAUTION' : 'SAFE');
-    addWeather((visibility.toFixed(2)) + ' mi', 'fa fa-eye', visLabel);
+    addWeather((visibility.toFixed(2)) + ' mi', 'fa fa-eye', visLabel, 'Visibility');
 
     var precipitation = weather.precipitation * 100;
     var precLabel = (precipitation > 50 ? 'ADVISORY' :
       (precipitation > 20) ? 'CAUTION' : 'SAFE');
-    addWeather((precipitation) + ' %', 'wi wi-raindrop', precLabel);
+    addWeather((precipitation) + ' %', 'wi wi-raindrop', precLabel, 'Chance of Precipitation');
 
     var temperature = (weather.temperature * 9 / 5 + 32);
     var tempLabel = (temperature < 10 || temperature > 100 ? 'ADVISORY' :
       (temperature < 20 || temperature > 90) ? 'CAUTION' : 'SAFE');
-    addWeather((temperature) + ' °F', 'wi wi-thermometer-exterior', tempLabel);
+    addWeather((temperature) + ' °F', 'wi wi-thermometer-exterior', tempLabel, 'Temperature');
 
     var windspeed = weather.wind.speed * 0.621371;
     var speedLabel = (windspeed > 15 ? 'ADVISORY' :
       (windspeed > 10) ? 'CAUTION' : 'SAFE');
-    addWeather((windspeed.toFixed(2)) + ' mph', 'wi wi-windy', speedLabel);
+    addWeather((windspeed.toFixed(2)) + ' mph', 'wi wi-windy', speedLabel, 'Wind Speed');
 
     var gusts = weather.wind.gusting * 0.621371;
     var gustsLabel = (gusts > 25 ? 'ADVISORY' :
       (gusts > 15) ? 'CAUTION' : 'SAFE');
-    addWeather((gusts.toFixed(2)) + ' mph', 'wi wi-strong-wind', gustsLabel);
+    addWeather((gusts.toFixed(2)) + ' mph', 'wi wi-strong-wind', gustsLabel, 'Wind Gust Speed');
   }
 
   function getDroneAltitude() {
@@ -316,7 +318,8 @@ $(function () {
     var label = (currentAltitude >= 400 ? 'ADVISORY' :
       (currentAltitude >= 250 ? 'CAUTION' : 'SAFE'));
 
-    var html = '<li class="list-group-item"><i class="fa fa-arrows-v"></i> ' +
+    var html = '<li class="list-group-item"><i class="fa fa-arrows-v" ' +
+      'data-toggle="tooltip" title="Drone Altitude"></i> ' +
       currentAltitude.toFixed(2) + ' ft<span class="label label-' + labelColors[label] +
       '">' + label + '</span></li>';
     $('#altregulation').empty();
@@ -404,6 +407,10 @@ $(function () {
         updateRegulations(response.nearest_advisories);
         updateWeather(response.weather);
         updateAltitudeRegulation();
+        $('i').tooltip({
+          animation: false,
+          placement: 'left',
+        });
       });
     }, 1500);
   });
