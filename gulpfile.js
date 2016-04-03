@@ -20,7 +20,7 @@ gulp.task('scripts', function () {
 });
 
 // Default task to watch files
-gulp.task('default', function () {
+gulp.task('default', ['sass', 'scripts'], function () {
   gulp.watch('public/sass/**/*.scss', ['sass']);
   gulp.watch('public/js/main.js', ['scripts']);
 });
