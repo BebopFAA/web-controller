@@ -31,9 +31,16 @@ body {
 #map, #video-stream {
 	position: relative;
 	width: 100%;
-	height: 55%;
-	border: 1px solid black;
-	background: black;
+	height: 45%;
+}
+
+#video-stream {
+	display: inline-block;
+	canvas {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+	}
 }
 
 #warnings {
@@ -59,6 +66,18 @@ body {
 	}
 }
 
+#video-stream-outer {
+  width: 100%;
+  text-align: center;
+	background-color: black;
+	overflow: hidden;
+	border: 1px solid black;
+}
+
+#map {
+	border: 1px solid black;
+}
+
 #loading {
 	margin: auto;
 	left: 0;
@@ -72,6 +91,7 @@ body {
 	border-right-color: transparent;
 	border-radius: 50%;
 	animation: spin 1s linear infinite;
+	z-index: -100;
 	@keyframes spin
 	{
 		from { transform: rotate(0deg); }

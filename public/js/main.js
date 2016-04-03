@@ -1,7 +1,6 @@
 var Player = require('../../Broadway-master/Player/Player');
 var io = require('socket.io-client');
 
-
 $(function () {
   'use strict';
 
@@ -11,7 +10,7 @@ $(function () {
 
     Array.prototype.forEach.call(raw, function (data, index) {
       array[index] = raw.charCodeAt(index);
-    })
+    });
 
     // console.log(array);
     return array;
@@ -19,17 +18,18 @@ $(function () {
 
   var player = new Player({
     useWorker: true,
-    workerFile: '/js/Decoder.js'
+    workerFile: '/js/Decoder.js',
   });
 
   var videoWindow = document.getElementById('video-stream');
+
   // document.body.appendChild(player.canvas);
   videoWindow.appendChild(player.canvas);
 
   var socket = io('http://localhost:8000/');
-  
+
   socket.on('data', function (data) {
-    console.log('receiving video data...')
+    console.log('receiving video data...');
     player.decode(toUint8Array(data));
   });
 
@@ -162,7 +162,6 @@ $(function () {
   }
 
   function updateWeather(weather) {
-    // console.log(weather);
     clearWeather();
 
     // Add each row with the weather report
@@ -175,8 +174,6 @@ $(function () {
       conditionLower.indexOf('snow') > -1 ||
       conditionLower.indexOf('showers') > -1) conditionLabel = 'CAUTION';
     addWeather(condition, conditionIcon, conditionLabel);
-
-    getConditionIcon(condition);
 
     var visibility = weather.visibility * 0.621371;
     var visLabel = (visibility < 2 ? 'ADVISORY' :
@@ -204,6 +201,21 @@ $(function () {
     addWeather((gusts.toFixed(2)) + ' mph', 'wi wi-strong-wind', gustsLabel);
   }
 
+  function getDroneAltitude() {
+    return 100 + Math.random() * 10;
+  }
+
+  function updateAltitudeRegulation() {
+    var currentAltitude = getDroneAltitude();
+    var label = 'SAFE';
+
+    // if (currentAltitude)
+    var html = '<li class="list-group-item"><i class="' + icon + '"></i> ' +
+      weather + '<span class="label label-' + labelColors[label] +
+      '">' + label + '</span></li>';
+    $('#altregulation').append(html);
+  }
+
   // point = [long, lat]
   function getRegulationsForPoint(point, cb) {
     var longitude = point[0];
@@ -229,19 +241,25 @@ $(function () {
   function gatherConditions(n, cb) {
     var conditions = [];
     var returned = 0;
-    for (var i = 0; i < n; i++) {
-      getRegulationsForPoint([-73.997087 + 5 - (Math.random() * 10), 40.728059 + 5 - (Math.random() * 10)], function (response) {
-        var condition = response.weather.condition;
-        if (conditions.indexOf(condition) == -1) {
-          conditions.push(condition);
-        }
+    var regulationCallback = function (response) {
+      var condition = response.weather.condition;
+      if (conditions.indexOf(condition) == -1) {
+        conditions.push(condition);
+      }
 
-        returned++;
-        if (returned == n) {
-          console.log(conditions);
-          cb();
-        }
-      });
+      returned++;
+      if (returned == n) {
+        console.log(conditions);
+        cb();
+      }
+    };
+
+    for (var i = 0; i < n; i++) {
+      getRegulationsForPoint(
+        [
+          -73.997087 + 5 - (Math.random() * 10),
+          40.728059 + 5 - (Math.random() * 10),
+        ], regulationCallback);
     }
   }
 
@@ -281,7 +299,5 @@ $(function () {
       });
     }, 1500);
   });
-
-
 
 });

@@ -14,16 +14,20 @@ block content
 		.col-md-6
 			#left
 				h3 Live Stream
-				#video-stream
-					#loading
+				#video-stream-outer
+					#video-stream
+						#loading
 		.col-md-6
 			#right
 				h3 Drone Location
 				#map
 				#warnings
 					.panel.panel-default
-						.panel-heading Regulations
+						.panel-heading Geographical Regulations
 						ul.list-group#regulations
+							li.list-group-item Loading...
+						.panel-heading Altitude Regulation
+						ul.list-group#altregulation
 							li.list-group-item Loading...
 						.panel-heading Weather
 						ul.list-group#weather
