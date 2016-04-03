@@ -47,6 +47,38 @@ $(function () {
   map.addControl(new mapboxgl.Geolocate());
   map.addControl(new mapboxgl.Navigation());
 
+  var radius = 20;
+
+  function getDroneLocation() {
+    return {
+      type: 'Point',
+      coordinates: [-73.997087, 40.728059],
+    };
+  }
+
+  map.on('load', function () {
+    // Add a source and layer displaying a point which will be animated in a circle.
+    map.addSource('drone-source', {
+      type: 'geojson',
+      data: getDroneLocation(),
+    });
+
+    map.addLayer({
+      id: 'drone',
+      source: 'drone-source',
+      type: 'circle',
+      paint: {
+        'circle-radius': 10,
+        'circle-color': '#007cbf',
+      },
+    });
+
+    // Update the drone location
+    setInterval(function () {
+      map.getSource('drone-source').setData(getDroneLocation());
+    }, 500);
+  });
+
   // Add the location of the drone to the map
   // map.on('style.load', function () {
   // map.addSource('image', {
