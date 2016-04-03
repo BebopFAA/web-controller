@@ -93,7 +93,10 @@ $(function () {
     SAFE: 'success',
     CAUTION: 'warning',
     ADVISORY: 'danger',
+    'N/A': 'info',
   };
+
+  var droneLocation = [-73.9958435, 40.7286411];
 
   var url = 'https://api.airmap.io/maps/v3/tilejson/' +
     Object.keys(layers).join() + '?apikey=' + AIRMAP_TOKEN +
@@ -310,17 +313,19 @@ $(function () {
   }
 
   function getDroneAltitude() {
-    return 100 + Math.random() * 10;
+    return 'N/A';
   }
 
   function updateAltitudeRegulation() {
     var currentAltitude = getDroneAltitude();
-    var label = (currentAltitude >= 400 ? 'ADVISORY' :
-      (currentAltitude >= 250 ? 'CAUTION' : 'SAFE'));
+
+    // var label = (currentAltitude >= 400 ? 'ADVISORY' :
+    // (currentAltitude >= 250 ? 'CAUTION' : 'SAFE'));
+    var label = 'N/A';
 
     var html = '<li class="list-group-item"><i class="fa fa-arrows-v" ' +
       'data-toggle="tooltip" title="Drone Altitude"></i> ' +
-      currentAltitude.toFixed(2) + ' ft<span class="label label-' + labelColors[label] +
+      currentAltitude + ' ft<span class="label label-' + labelColors[label] +
       '">' + label + '</span></li>';
     $('#altregulation').empty();
     $('#altregulation').append(html);
@@ -373,12 +378,12 @@ $(function () {
     }
   }
 
-  // gatherConditions(1000);
-
   function getDroneLocation() {
     return {
       type: 'Point',
-      coordinates: [-73.997087 + Math.random() * 0.01, 40.728059 + Math.random() * 0.01],
+
+      //[-73.997087 + Math.random() * 0.01, 40.728059 + Math.random() * 0.01],
+      coordinates: droneLocation,
     };
   }
 
@@ -399,20 +404,31 @@ $(function () {
       },
     });
 
-    // Update the drone location
-    setInterval(function () {
+    function updateMap() {
       var location = getDroneLocation();
       map.getSource('drone-source').setData(location);
       getRegulationsForPoint(location.coordinates, function (response) {
         updateRegulations(response.nearest_advisories);
         updateWeather(response.weather);
-        updateAltitudeRegulation();
+
+        // updateAltitudeRegulation();
         $('i').tooltip({
           animation: false,
           placement: 'left',
         });
       });
-    }, 1500);
+    }
+
+    map.on('contextmenu', function (data) {
+      console.log('Moving drone.');
+      droneLocation = [data.lngLat.lng, data.lngLat.lat];
+      updateMap();
+    });
+
+    updateMap();
+
+    // Update the map data every so often
+    // setInterval(updateMap, 1000);
   });
 
 });
