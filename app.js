@@ -91,7 +91,7 @@ Cylon.robot({
 		console.log('\t Linear velocity (z):\t' + LINEAR_Z_VEL);
 		console.log('\t Angular velocity:\t' + ANGULAR_VEL);
 
-		// console.log(my.drone);
+		// console.log(my.drone.GPSSettings);
 
 		my.drone.on('PositionChanged', function(data) {
 			console.log(data);
@@ -103,6 +103,12 @@ Cylon.robot({
 
 		io.on('connection', function (socket) {
 			console.log('Socket IO connection established!');
+
+
+
+
+
+
 			my.drone.on('video', function (data) {
 				// console.log('Transmitting video data...')
 				socket.emit('data', data.toString('base64'));
@@ -140,6 +146,22 @@ Cylon.robot({
 	 //		that.controller.on("left_y:move", function(data) {
 	 //			leftStick.y = data;
 	 //		});
+
+ 	 	// 	that.controller.on("l2:press", function(data) {
+	 		// 	that.drone.up(LINEAR_Z_VEL)
+	 		// });
+
+ 	 	// 	that.controller.on("r2:press", function(data) {
+	 		// 	that.drone.down(LINEAR_Z_VEL)
+	 		// });
+
+  	 // 		that.controller.on("l2:release", function(data) {
+	 		// 	that.drone.stop()
+	 		// });
+
+ 	 	// 	that.controller.on("r2:release", function(data) {
+	 		// 	that.drone.stop()
+	 		// });
 
 	 //		setInterval(function() {
 	 //			var pair = leftStick;
