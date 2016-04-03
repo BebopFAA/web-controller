@@ -116,6 +116,11 @@ Cylon.robot({
 					my.drone.down(LINEAR_Z_VEL);
 				}
 
+				// prohibited region
+				socket.on('prohibited', function(data) {
+					my.drone.navigateHome();
+				});
+
 				my.drone.stop();
 			});
 
