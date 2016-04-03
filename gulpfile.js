@@ -1,7 +1,7 @@
-var gulp = require('gulp'),
-	sass = require('gulp-sass'),
-	browserify = require('gulp-browserify'),
-	rename = require('gulp-rename');
+var gulp = require('gulp');
+var sass = require('gulp-sass');
+var browserify = require('gulp-browserify');
+var rename = require('gulp-rename');
 
 // Compile SCSS files into CSS
 gulp.task('sass', function () {
@@ -15,6 +15,10 @@ gulp.task('scripts', function () {
   // Single entry point to browserify
   gulp.src('public/js/main.js')
 		.pipe(browserify({ insertGlobals: true }))
+    .on('prebundle', function (bundler) {
+      bundler.require('cylon-keyboard');
+      bundler.require('cylon-bebop');
+    })
 		.pipe(rename('main-built.js'))
 		.pipe(gulp.dest('public/js'));
 });
