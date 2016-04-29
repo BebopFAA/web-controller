@@ -21,7 +21,7 @@
     "body-parser": "^1.14.1",
     "compression": "^1.6.0",
     "cylon": "^1.2.0",
-    "cylon-bebop": "^0.4.0",
+    "cylon-bebop": "file:cylon-bebop-0.4.1.tgz",
     "cylon-joystick": "^0.19.1",
     "cylon-keyboard": "^0.16.0",
     "errorhandler": "^1.4.2",

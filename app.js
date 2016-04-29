@@ -69,39 +69,55 @@ var toUint8Array = function (parStr) {
 var LINEAR_XY_VEL = 100;
 var LINEAR_Z_VEL = 75;
 var ANGULAR_VEL = 100;
-
+var HAS_JOYSTICK = false;
+console.log("here");
 Cylon.robot({
-	connections: {
-		keyboard: { adaptor: 'keyboard' },
-		joystick: { adaptor: "joystick" },
-		bebop: { adaptor: 'bebop' },
-	},
+	connections: (function() {
+		console.log("here2");
+		var connections = {
+			keyboard: { adaptor: 'keyboard' },
+			bebop: { adaptor: 'bebop' },
+		}
+		if(HAS_JOYSTICK) {
+			connections.joystick = { adaptor: "joystick" };
+		}
+		return connections;
+	})(),
 
-	devices: {
-		keyboard: { driver: 'keyboard', connection: 'keyboard' },
-		controller: { driver: "dualshock-4", connection: "joystick" },
-		drone: { driver: 'bebop', connection: 'bebop' },
-	},
+	devices: (function() {
+		console.log("here3");
+		var devices = {
+			keyboard: { driver: 'keyboard', connection: 'keyboard' },
+			drone: { driver: 'bebop', connection: 'bebop' },
+		};
+		if(HAS_JOYSTICK) {
+			devices.controller = { driver: "dualshock-4", connection: "joystick" };
+		}
+		return devices;
+	})(),
 
 	work: function (my) {
 		console.log('Initializing setup with the following parameters');
 		console.log('\t Linear velocity (xy):\t' + LINEAR_XY_VEL);
 		console.log('\t Linear velocity (z):\t' + LINEAR_Z_VEL);
 		console.log('\t Angular velocity:\t' + ANGULAR_VEL);
+		console.log('\t Has joystick:\t' + HAS_JOYSTICK);
 
 		// my.drone.connection.connector.GPSSettings.resetHome();
 		// my.drone.connection.connector.WifiSettings.outdoorSetting(1);
 
 		// console.log(my.drone)
 
-		// PlayStation Dualshock 4 controller
-    	var that = this,
+		// PlayStation Dualshock 4
+		var that = this,
 		rightStick = { x: 0.0, y: 0.0 },
 		leftStick = { x: 0.0, y: 0.0 };
 
 		// socket io connection
-	    io.on('connection', function (socket) {
+    io.on('connection', function (socket) {
 			console.log('Socket IO connection established!');
+
+			// my.drone.MediaStreaming.videoEnable(1);
 
 			my.drone.on('video', function (data) {
 				socket.emit('data', data.toString('base64'));
@@ -159,63 +175,65 @@ Cylon.robot({
 				socket.emit('state', 'takingOff');
 			});
 
-			that.controller.on("square:press", function() {
-				that.drone.takeOff();
-			});
+			if(HAS_JOYSTICK) {
+				that.controller.on("square:press", function() {
+					that.drone.takeOff();
+				});
 
-			that.controller.on("triangle:press", function() {
-				that.drone.stop();
-			});
+				that.controller.on("triangle:press", function() {
+					that.drone.stop();
+				});
 
-			that.controller.on("x:press", function() {
-				socket.emit('button', 'x:press');
-				that.drone.land();
-			});
+				that.controller.on("x:press", function() {
+					socket.emit('button', 'x:press');
+					that.drone.land();
+				});
 
-			that.controller.on("right_x:move", function(data) {
-				console.log('right_x:move: ' + data);
-				rightStick.x = data;
-			});
+				that.controller.on("right_x:move", function(data) {
+					console.log('right_x:move: ' + data);
+					rightStick.x = data;
+				});
 
-			that.controller.on("right_y:move", function(data) {
-				console.log('right_y:move' + data);
-				rightStick.y = data;
-			});
+				that.controller.on("right_y:move", function(data) {
+					console.log('right_y:move' + data);
+					rightStick.y = data;
+				});
 
-			that.controller.on("right_stick:release", function(data) {
-				console.log('right_stick:release');
-			});
+				that.controller.on("right_stick:release", function(data) {
+					console.log('right_stick:release');
+				});
 
-			that.controller.on("left_x:move", function(data) {
-				console.log('left_x:move' + data);
-				leftStick.x = data;
-			});
+				that.controller.on("left_x:move", function(data) {
+					console.log('left_x:move' + data);
+					leftStick.x = data;
+				});
 
-			that.controller.on("left_y:move", function(data) {
-				console.log('left_y:move' + data);
-				leftStick.y = data;
-			});
+				that.controller.on("left_y:move", function(data) {
+					console.log('left_y:move' + data);
+					leftStick.y = data;
+				});
 
-	    	that.controller.on("l2:press", function(data) {
-	    		socket.emit('button', 'l2:press');
-	    		that.drone.up(LINEAR_Z_VEL)
-	    	});
+				that.controller.on("l2:press", function(data) {
+					socket.emit('button', 'l2:press');
+					that.drone.up(LINEAR_Z_VEL)
+				});
 
-	    	that.controller.on("r2:press", function(data) {
-	    		socket.emit('button', 'r2:press');
-	    		that.drone.down(LINEAR_Z_VEL)
-	    	});
+				that.controller.on("r2:press", function(data) {
+					socket.emit('button', 'r2:press');
+					that.drone.down(LINEAR_Z_VEL)
+				});
 
-	    	that.controller.on("l2:release", function(data) {
-	    		socket.emit('button', 'l2:release');
-	    		that.drone.stop()
-	    	});
+				that.controller.on("l2:release", function(data) {
+					socket.emit('button', 'l2:release');
+					that.drone.stop()
+				});
 
-	    	that.controller.on("r2:release", function(data) {
-	    		socket.emit('button', 'r2:release');
-		    	that.drone.stop()
-		    });
-	    });
+				that.controller.on("r2:release", function(data) {
+					socket.emit('button', 'r2:release');
+					that.drone.stop()
+				});
+			}
+		});
 
 
 		setInterval(function() {
