@@ -160,7 +160,7 @@ $(function () {
   var map = new mapboxgl.Map({
     container: 'map', // container id
     style: url, //stylesheet location
-    center: [-73.9957915, 40.7285429], // starting position
+    center: droneLocation,//[-73.9957915, 40.7285429], // starting position
     zoom: MAX_ZOOM, // starting zoom
     maxZoom: ZOOM,
   });
@@ -554,6 +554,9 @@ var animationStartTimestamp = null;
 
     updateMap();
 
+    // center the map to the drone location if not already
+    map.panTo(droneLocation);  
+    
     // Update the map data every so often
     setInterval(updateMap, 500);
   });
