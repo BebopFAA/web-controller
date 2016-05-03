@@ -1,8 +1,13 @@
 
 @import 'variables';
 
-h2, p, a, button, input, textarea {
+h2, h3, p, a, button, input, textarea {
 	font-family: $font-family;
+}
+
+h3 {
+	font-size: 35px;
+	text-align: center;
 }
 
 .navbar {
@@ -28,14 +33,17 @@ body {
 	margin-left: 5%;
 }
 
+#map {
+	height: 35%;
+}
+
 #map, #video-stream {
 	position: relative;
 	width: 100%;
-	height: 88%;
 }
 
 #video-stream {
-	height: 45%;
+	height: 35%;
 	display: inline-block;
 	canvas {
     position: relative;

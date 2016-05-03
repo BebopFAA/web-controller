@@ -39,6 +39,7 @@ $(function () {
   var MAX_ZOOM = 14.9;
   var ZOOM = MAX_ZOOM;
   var THEME = 'standard';
+  var droneAltitude, droneBatteryLevel;
 
   var layers = {
 
@@ -266,6 +267,8 @@ $(function () {
       return 'SAFE FLYING CONDITIONS';
     } else if (label == 'CAUTION') {
       return 'POSSIBLY DANGEROUS FLYING CONDITIONS';
+    } else if (label == 'N/A') {
+      return 'UNKNOWN FLYING CONDITIONS';
     } else {
       return 'DANGEROUS FLYING CONDITIONS';
     }
@@ -380,25 +383,6 @@ $(function () {
     addWeather((gusts.toFixed(2)) + ' mph', 'wi wi-strong-wind', gustsLabel, 'Wind Gust Speed');
   }
 
-  function getDroneAltitude() {
-    return 'N/A';
-  }
-
-  function updateAltitudeRegulation() {
-    var currentAltitude = getDroneAltitude();
-
-    // var label = (currentAltitude >= 400 ? 'PROHIBITED' :
-    // (currentAltitude >= 250 ? 'CAUTION' : 'SAFE'));
-    var label = 'N/A';
-
-    var html = '<li class="list-group-item"><i class="fa fa-arrows-v" ' +
-      'data-toggle="tooltip" title="Drone Altitude"></i> ' +
-      currentAltitude + ' ft<span class="label label-' + labelColors[label] +
-      '">' + label + '</span></li>';
-    $('#droneregulations').empty();
-    $('#droneregulations').append(html);
-  }
-
   // point = [long, lat]
   function getRegulationsForPoint(point, cb) {
     var longitude = point[0];
@@ -479,14 +463,13 @@ $(function () {
         updateRegulations(response.nearest_advisories);
         updateWeather(response.weather);
 
-        // updateAltitudeRegulation();
         $('i').tooltip({
           animation: false,
-          placement: 'left',
+          placement: 'right',
         });
         $('.label').tooltip({
           animation: false,
-          placement: 'left',
+          placement: 'right',
         });
       });
     }
@@ -503,6 +486,12 @@ $(function () {
     // setInterval(updateMap, 1000);
   });
 
+  function updateDroneRegulations() {
+    $('#droneregulations').empty();
+    updateBattery(droneBatteryLevel);
+    updateAltitudeRegulation(droneAltitude);
+  }
+
   function updateBattery(batteryLevel) {
     var label, batteryText;
     var faIcon = 'fa-battery-0';
@@ -510,7 +499,7 @@ $(function () {
       label = 'N/A';
       batteryText = 'Loading...';
     } else {
-      batteryText = batteryLevel;
+      batteryText = batteryLevel + '%';
       if (batteryLevel <= 10) {
         label = 'PROHIBITED';
         faIcon = 'fa-battery-0';
@@ -531,23 +520,48 @@ $(function () {
         (batteryLevel <= 30 ? 'CAUTION' : 'SAFE'));
     }
     var html = '<li class="list-group-item"><i class="fa ' + faIcon + '" ' +
-      'data-toggle="tooltip" title="Drone Battery Level"></i> ' +
-      batteryText + '%<span class="label label-' + labelColors[label] +
+      'data-toggle="tooltip" title="Drone Battery Level (%)"></i> ' +
+      batteryText + '<span class="label label-' + labelColors[label] +
+      '" data-toggle="tooltip" title="' + getNonRegulationLabelTooltip(label) +
       '">' + label + '</span></li>';
-    $('#droneregulations').empty();
     $('#droneregulations').append(html);
   }
 
-  // Set to inital value
-  updateBattery();
+  function updateAltitudeRegulation(altitude) {
+    var faIcon = 'fa-arrows-v';
+    var label, altitudeText;
+    if (typeof altitude == 'undefined') {
+      label = 'N/A';
+      altitudeText = 'Loading...';
+    } else {
+      label = (altitude >= 400 ? 'PROHIBITED' :
+        (altitude >= 250 ? 'CAUTION' : 'SAFE'));
+      altitudeText = altitude + ' ft';
+    }
+
+    var html = '<li class="list-group-item"><i class="fa ' + faIcon + '" ' +
+      'data-toggle="tooltip" title="Drone Altitude (ft)"></i> ' +
+      altitudeText + '<span class="label label-' + labelColors[label] +
+      '" data-toggle="tooltip" title="' + getNonRegulationLabelTooltip(label) +
+      '">' + label + '</span></li>';
+    $('#droneregulations').append(html);
+  }
+
+  // Set to inital values
+  updateDroneRegulations();
 
   socket.on('battery', function(data) {
     console.log('Battery packet received: ' + data);
-    updateBattery(data);
+    droneBatteryLevel = data;
+    updateDroneRegulations();
   });
 
   socket.on('position', function(data) {
+    console.log('Position Data Packet:');
     console.log(data);
+    if (data && data.altitude) {
+      droneAltitude = data.altitude;
+      updateDroneRegulations();
+    }
   });
-
 });
