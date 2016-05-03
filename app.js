@@ -87,6 +87,8 @@ Cylon.robot({
 		var devices = {
 			keyboard: { driver: 'keyboard', connection: 'keyboard' },
 			drone: { driver: 'bebop', connection: 'bebop' },
+    	// stream: { driver: 'media-streaming', connection: 'bebop' },
+    	// record: { driver: 'media-record', connection: 'bebop' }
 		};
 		if(HAS_JOYSTICK) {
 			devices.controller = { driver: "dualshock-4", connection: "joystick" };
@@ -101,26 +103,32 @@ Cylon.robot({
 		console.log('\t Angular velocity:\t' + ANGULAR_VEL);
 		console.log('\t Has joystick:\t' + HAS_JOYSTICK);
 
-		// my.drone.connection.connector.GPSSettings.resetHome();
+		// my.drone.connection.connector.MediaRecord.pictureV2();
 		// my.drone.connection.connector.WifiSettings.outdoorSetting(1);
 
-		// console.log(my.drone)
+		// my.stream.videoEnable(1);
 
 		// PlayStation Dualshock 4
 		var that = this,
 		rightStick = { x: 0.0, y: 0.0 },
 		leftStick = { x: 0.0, y: 0.0 };
-		var batteryLevel;
+		var batteryLevel, positionData;
 
 		my.drone.on('battery', function(data) {
 			batteryLevel = data;
 		});
+		my.drone.on('position', function(data) {
+			positionData = data;
+		});
 
-		// socket io connection
+		// console.log(my.record.pictureV2);
+		// my.record.picture();
+		// my.record.pictureV2();
+		// my.stream.videoEnable(1);
+
+				// socket io connection
     io.on('connection', function (socket) {
 			console.log('Socket IO connection established!');
-
-			// my.drone.MediaStreaming.videoEnable(1);
 
 			my.drone.on('video', function (data) {
 				socket.emit('data', data.toString('base64'));
@@ -146,6 +154,9 @@ Cylon.robot({
 			// Send the initially found battery level (one time only)
 			console.log('emitting initial battery');
 			socket.emit('battery', batteryLevel);
+			// Same for position data
+			console.log('emitting initial position');
+			socket.emit('position', positionData);
 
 			my.drone.on('battery', function(data) {
 				console.log('Battery level: ' + data);
