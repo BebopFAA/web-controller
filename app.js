@@ -289,6 +289,8 @@ Cylon.robot({
 		// increase altitude
 		my.keyboard.on('up', function () {
 			console.log('MOVING UP');
+			console.log(my.drone);
+			console.log(my.drone.up);
 			my.drone.up(LINEAR_Z_VEL);
 		});
 
