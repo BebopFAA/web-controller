@@ -70,10 +70,9 @@ var LINEAR_XY_VEL = 100;
 var LINEAR_Z_VEL = 75;
 var ANGULAR_VEL = 100;
 var HAS_JOYSTICK = false;
-console.log("here");
+
 Cylon.robot({
 	connections: (function() {
-		console.log("here2");
 		var connections = {
 			keyboard: { adaptor: 'keyboard' },
 			bebop: { adaptor: 'bebop' },
@@ -85,7 +84,6 @@ Cylon.robot({
 	})(),
 
 	devices: (function() {
-		console.log("here3");
 		var devices = {
 			keyboard: { driver: 'keyboard', connection: 'keyboard' },
 			drone: { driver: 'bebop', connection: 'bebop' },
@@ -112,6 +110,11 @@ Cylon.robot({
 		var that = this,
 		rightStick = { x: 0.0, y: 0.0 },
 		leftStick = { x: 0.0, y: 0.0 };
+		var batteryLevel;
+
+		my.drone.on('battery', function(data) {
+			batteryLevel = data;
+		});
 
 		// socket io connection
     io.on('connection', function (socket) {
@@ -140,8 +143,12 @@ Cylon.robot({
 				my.drone.stop();
 			});
 
+			// Send the initially found battery level (one time only)
+			console.log('emitting initial battery');
+			socket.emit('battery', batteryLevel);
+
 			my.drone.on('battery', function(data) {
-				console.log(data);
+				console.log('Battery level: ' + data);
 				socket.emit('battery', data);
 			});
 

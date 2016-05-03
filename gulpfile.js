@@ -14,7 +14,12 @@ gulp.task('sass', function () {
 gulp.task('scripts', function () {
   // Single entry point to browserify
   gulp.src('public/js/main.js')
-		.pipe(browserify({ insertGlobals: true }))
+		.pipe(browserify({
+      insertGlobals: true,
+      ignore: [
+        './lib-cov/fluent-ffmpeg'
+      ]
+    }))
     .on('prebundle', function (bundler) {
       bundler.require('cylon-keyboard');
       bundler.require('cylon-bebop');

@@ -143,7 +143,9 @@ $(function () {
     'N/A': 'info',
   };
 
-  var droneLocation = [-73.9958435, 40.7286411];
+  // Hard-coded to Skirball Theater for NYTM
+  // because GPS will not work well inside, when demoing
+  var droneLocation = [-73.9980471, 40.7297706];
 
   var url = 'https://api.airmap.io/maps/v3/tilejson/' +
     Object.keys(layers).join() + '?apikey=' + AIRMAP_TOKEN +
@@ -393,8 +395,8 @@ $(function () {
       'data-toggle="tooltip" title="Drone Altitude"></i> ' +
       currentAltitude + ' ft<span class="label label-' + labelColors[label] +
       '">' + label + '</span></li>';
-    $('#altregulation').empty();
-    $('#altregulation').append(html);
+    $('#droneregulations').empty();
+    $('#droneregulations').append(html);
   }
 
   // point = [long, lat]
@@ -499,6 +501,53 @@ $(function () {
 
     // Update the map data every so often
     // setInterval(updateMap, 1000);
+  });
+
+  function updateBattery(batteryLevel) {
+    var label, batteryText;
+    var faIcon = 'fa-battery-0';
+    if (typeof batteryLevel == 'undefined') {
+      label = 'N/A';
+      batteryText = 'Loading...';
+    } else {
+      batteryText = batteryLevel;
+      if (batteryLevel <= 10) {
+        label = 'PROHIBITED';
+        faIcon = 'fa-battery-0';
+      } else if (batteryLevel <= 25) {
+        label = 'CAUTION';
+        faIcon = 'fa-battery-1';
+      } else if (batteryLevel <= 50) {
+        label = 'SAFE';
+        faIcon = 'fa-battery-2';
+      } else if (batteryLevel <= 75) {
+        label = 'SAFE';
+        faIcon = 'fa-battery-3';
+      } else {
+        label = 'SAFE';
+        faIcon = 'fa-battery-4';
+      }
+      var label = (batteryLevel <= 10 ? 'PROHIBITED' :
+        (batteryLevel <= 30 ? 'CAUTION' : 'SAFE'));
+    }
+    var html = '<li class="list-group-item"><i class="fa ' + faIcon + '" ' +
+      'data-toggle="tooltip" title="Drone Battery Level"></i> ' +
+      batteryText + '%<span class="label label-' + labelColors[label] +
+      '">' + label + '</span></li>';
+    $('#droneregulations').empty();
+    $('#droneregulations').append(html);
+  }
+
+  // Set to inital value
+  updateBattery();
+
+  socket.on('battery', function(data) {
+    console.log('Battery packet received: ' + data);
+    updateBattery(data);
+  });
+
+  socket.on('position', function(data) {
+    console.log(data);
   });
 
 });
