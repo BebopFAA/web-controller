@@ -533,6 +533,10 @@ var animationStartTimestamp = null;
       if(data && data.lngLat && data.lngLat.lng && data.lngLat.lat) {
         droneStart = droneLocation;
         droneGoal = [data.lngLat.lng, data.lngLat.lat];
+
+        // fly to the drone location
+        map.panTo(droneGoal);
+
         console.log('Moving drone.');
         console.log(droneStart);
         console.log(droneGoal);
@@ -544,6 +548,10 @@ var animationStartTimestamp = null;
       // droneLocation = [data.lngLat.lng, data.lngLat.lat];
       if(data && data.lngLat && data.lngLat.lng && data.lngLat.lat) {
         droneLocation = [data.lngLat.lng, data.lngLat.lat];
+
+        // fly to the droneLocation
+        map.panTo(droneLocation);
+
         droneGoal = undefined;
         droneStart = undefined;
         animateDrone(MOVEMENT_TIME + 1); // lazyness (c)
@@ -554,9 +562,6 @@ var animationStartTimestamp = null;
 
     updateMap();
 
-    // center the map to the drone location if not already
-    map.panTo(droneLocation);  
-    
     // Update the map data every so often
     setInterval(updateMap, 500);
   });
