@@ -39,6 +39,7 @@ $(function () {
   var MAX_ZOOM = 14.9;
   var ZOOM = MAX_ZOOM;
   var THEME = 'standard';
+  var MOVEMENT_TIME = 5000;
   var droneAltitude, droneBatteryLevel;
 
   var layers = {
@@ -147,6 +148,7 @@ $(function () {
   // Hard-coded to Skirball Theater for NYTM
   // because GPS will not work well inside, when demoing
   var droneLocation = [-73.9980471, 40.7297706];
+  var droneGoal, droneStart;
 
   var url = 'https://api.airmap.io/maps/v3/tilejson/' +
     Object.keys(layers).join() + '?apikey=' + AIRMAP_TOKEN +
@@ -257,6 +259,8 @@ $(function () {
       return 'NO VIOLATION\nLEGAL';
     } else if (label == 'CAUTION') {
       return 'VIOLATION\nNOT PROHIBITED';
+    } else if (label == 'N/A') {
+      return 'UNKNOWN\nIF PROHIBITED';
     } else {
       return 'VIOLATION\nPROHIBITED';
     }
@@ -439,6 +443,35 @@ $(function () {
     };
   }
 
+  function newLocationForTimestamp(timestamp) {
+    // Calculate the expected position between droneStart and droneGoal
+    // at the given timestamp
+    var latStart = droneStart[0];
+    var longStart = droneStart[1];
+    var latGoal = droneGoal[0];
+    var longGoal = droneGoal[1];
+    var time = Math.min(timestamp, MOVEMENT_TIME);
+    return [
+      latStart + (latGoal - latStart)/MOVEMENT_TIME*time,
+      longStart + (longGoal - longStart)/MOVEMENT_TIME*time
+    ];
+  }
+
+  function getDroneLocationAnimated(timestamp) {
+    if (droneGoal != undefined && droneStart != undefined) {
+      console.log(droneStart);
+      console.log(droneGoal);
+      droneLocation = newLocationForTimestamp(timestamp);
+      console.log(droneLocation);
+    }
+    return {
+      type: 'Point',
+      coordinates: droneLocation,
+    };
+  }
+
+var animationStartTimestamp = null;
+
   map.on('load', function () {
     // Add a source and layer displaying a point which will be animated in a circle.
     map.addSource('drone-source', {
@@ -455,6 +488,27 @@ $(function () {
         'circle-color': '#007cbf',
       },
     });
+
+    function animateDrone(timestamp) {
+      if (!animationStartTimestamp) animationStartTimestamp = timestamp;
+      var progress = timestamp - animationStartTimestamp;
+      console.log(progress);
+
+
+      // Request the next frame of the animation.
+      if (progress < MOVEMENT_TIME) {
+        map.getSource('drone-source').setData(getDroneLocationAnimated(progress));
+        requestAnimationFrame(animateDrone);
+      } else {
+        if (droneGoal) {
+          droneLocation = droneGoal;
+        }
+        map.getSource('drone-source').setData(getDroneLocation());
+
+        droneStart = undefined;
+        droneGoal = undefined;
+      }
+    }
 
     function updateMap() {
       var location = getDroneLocation();
@@ -475,15 +529,33 @@ $(function () {
     }
 
     map.on('contextmenu', function (data) {
-      console.log('Moving drone.');
-      droneLocation = [data.lngLat.lng, data.lngLat.lat];
-      updateMap();
+      // droneLocation = [data.lngLat.lng, data.lngLat.lat];
+      if(data && data.lngLat && data.lngLat.lng && data.lngLat.lat) {
+        droneStart = droneLocation;
+        droneGoal = [data.lngLat.lng, data.lngLat.lat];
+        console.log('Moving drone.');
+        console.log(droneStart);
+        console.log(droneGoal);
+        animationStartTimestamp = null;
+        requestAnimationFrame(animateDrone);
+      }
+    });
+    map.on('dblclick', function (data) {
+      // droneLocation = [data.lngLat.lng, data.lngLat.lat];
+      if(data && data.lngLat && data.lngLat.lng && data.lngLat.lat) {
+        droneLocation = [data.lngLat.lng, data.lngLat.lat];
+        droneGoal = undefined;
+        droneStart = undefined;
+        animateDrone(MOVEMENT_TIME + 1); // lazyness (c)
+        updateMap();
+      }
+      // updateMap();
     });
 
     updateMap();
 
     // Update the map data every so often
-    // setInterval(updateMap, 1000);
+    setInterval(updateMap, 500);
   });
 
   function updateDroneRegulations() {
