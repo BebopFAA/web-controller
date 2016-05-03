@@ -2,11 +2,13 @@
 extends layout
 
 block styles
-	link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css', rel='stylesheet', type='text/css')
-	link(href='css/weather-icons.min.css', rel='stylesheet', type='text/css')
+	//- link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css', rel='stylesheet', type='text/css')
+	link(href='/css/mapbox-gl.css', rel='stylesheet', type='text/css')
+	link(href='/css/weather-icons.min.css', rel='stylesheet', type='text/css')
 	//- link(href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.css' rel='stylesheet')
 block scripts
-	script(src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js')
+	//- script(src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js')
+	script(src='/js/mapbox-gl.js')
 	//- script(src="http://cdn.airmap.io/map-sdk/1.0.0/dist/airmap.map.js")
 	
 block content
@@ -16,14 +18,14 @@ block content
 				h3 Regulations
 				#warnings
 					.panel.panel-default
-						.panel-heading Geographical Regulations
-						ul.list-group#regulations
-							li.list-group-item Loading...
 						.panel-heading Drone Regulations
 						ul.list-group#droneregulations
 							li.list-group-item Loading...
 						.panel-heading Weather
 						ul.list-group#weather
+							li.list-group-item Loading...
+						.panel-heading Geographical Regulations
+						ul.list-group#regulations
 							li.list-group-item Loading...
 		.col-md-6
 			#right
