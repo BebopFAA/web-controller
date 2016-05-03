@@ -160,7 +160,7 @@ $(function () {
   var map = new mapboxgl.Map({
     container: 'map', // container id
     style: url, //stylesheet location
-    center: [-73.9957915, 40.7285429], // starting position
+    center: droneLocation,//[-73.9957915, 40.7285429], // starting position
     zoom: MAX_ZOOM, // starting zoom
     maxZoom: ZOOM,
   });
@@ -533,6 +533,10 @@ var animationStartTimestamp = null;
       if(data && data.lngLat && data.lngLat.lng && data.lngLat.lat) {
         droneStart = droneLocation;
         droneGoal = [data.lngLat.lng, data.lngLat.lat];
+
+        // fly to the drone location
+        map.panTo(droneGoal);
+
         console.log('Moving drone.');
         console.log(droneStart);
         console.log(droneGoal);
@@ -544,6 +548,10 @@ var animationStartTimestamp = null;
       // droneLocation = [data.lngLat.lng, data.lngLat.lat];
       if(data && data.lngLat && data.lngLat.lng && data.lngLat.lat) {
         droneLocation = [data.lngLat.lng, data.lngLat.lat];
+
+        // fly to the droneLocation
+        map.panTo(droneLocation);
+
         droneGoal = undefined;
         droneStart = undefined;
         animateDrone(MOVEMENT_TIME + 1); // lazyness (c)
